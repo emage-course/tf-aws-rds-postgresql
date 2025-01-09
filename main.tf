@@ -7,6 +7,9 @@ resource "aws_kms_key" "kms_key_us_east" {
 
   tags = {
     Name = "kms_key_us_east"
+    Owner       = "Cloud Engineering"
+    App         = "wordpress"
+    Environment = "dev"
   }
 }
 
@@ -34,17 +37,12 @@ resource "aws_db_instance" "primary-db" {
   backup_window           = "03:00-04:00"
   maintenance_window      = "mon:04:00-mon:04:30"
   deletion_protection     = "true"
-
   vpc_security_group_ids = [aws_security_group.rds-sg.id]
   db_subnet_group_name   = aws_db_subnet_group.subnet-group.name
   kms_key_id             = aws_kms_key.kms_key_us_east.arn
-
   monitoring_interval          = 60
   monitoring_role_arn          = aws_iam_role.rds_monitoring_role.arn
   performance_insights_enabled = "true"
-
-  # Default VPC
-  # default 
 
   tags = {
     Name        = "primary-wordpressdev"
@@ -74,11 +72,11 @@ resource "aws_kms_key" "kms_key_us_west" {
 
 resource "aws_db_instance" "replica-db" {
   provider                = aws.replica
-  availability_zone       = "us-west-1a"
+  availability_zone       = "us-west-2a"
   identifier              = "wordpressdev-replica"
   replicate_source_db     = aws_db_instance.primary-db.identifier
   engine                  = "postgres"
-  engine_version          = "16"
+  engine_version          = "17"
   instance_class          = "db.m5.xlarge"
   storage_type            = "gp3"
   port                    = 5432
@@ -91,7 +89,6 @@ resource "aws_db_instance" "replica-db" {
   copy_tags_to_snapshot   = "true"
   deletion_protection     = "true"
   kms_key_id              = aws_kms_key.kms_key_us_east.arn
-
   monitoring_interval          = 60
   monitoring_role_arn          = aws_iam_role.rds_monitoring_role.arn
   performance_insights_enabled = "true"
@@ -108,14 +105,12 @@ resource "aws_db_instance" "replica-db" {
 #  Cross-region replicas
 ################################################################################
 
-
 resource "aws_db_instance_automated_backups_replication" "cross-region-replica" {
   source_db_instance_arn = aws_db_instance.primary-db.arn
   retention_period       = 7
   kms_key_id             = aws_kms_key.kms_key_us_west.arn
   provider               = aws.replica
 }
-
 
 ################################################################################
 # Install wordpress
