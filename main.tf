@@ -1,15 +1,11 @@
 ################################################################################
 # AWS KMS encryption 
 ################################################################################
-
 resource "aws_kms_key" "kms_key_us_east" {
   deletion_window_in_days = 30
 
   tags = {
     Name = "kms_key_us_east"
-    Owner       = "Cloud Engineering"
-    App         = "wordpress"
-    Environment = "dev"
   }
 }
 
@@ -27,7 +23,7 @@ resource "aws_db_instance" "primary-db" {
   port                    = 5432
   db_name                 = "postgres"
   username                = "postgres"
-  password                = "postgres"
+  password                = "postgres123"
   backup_retention_period = 7
   storage_encrypted       = true
   skip_final_snapshot     = true
@@ -70,36 +66,36 @@ resource "aws_kms_key" "kms_key_us_west" {
 # Cross-region replicas
 ################################################################################
 
-resource "aws_db_instance" "replica-db" {
-  provider                = aws.replica
-  availability_zone       = "us-west-2a"
-  identifier              = "wordpressdev-replica"
-  replicate_source_db     = aws_db_instance.primary-db.identifier
-  engine                  = "postgres"
-  engine_version          = "17"
-  instance_class          = "db.m5.xlarge"
-  storage_type            = "gp3"
-  port                    = 5432
-  backup_retention_period = 7
-  storage_encrypted       = "true"
-  skip_final_snapshot     = "true"
-  apply_immediately       = "false"
-  backup_window           = "03:00-04:00"
-  maintenance_window      = "mon:04:00-mon:04:30"
-  copy_tags_to_snapshot   = "true"
-  deletion_protection     = "true"
-  kms_key_id              = aws_kms_key.kms_key_us_east.arn
-  monitoring_interval          = 60
-  monitoring_role_arn          = aws_iam_role.rds_monitoring_role.arn
-  performance_insights_enabled = "true"
-  depends_on                   = [aws_db_instance.primary-db]
-  tags = {
-    Name        = "secondary-wordpressdev"
-    Owner       = "Cloud Engineering"
-    App         = "wordpress"
-    Environment = "dev"
-  }
-}
+# resource "aws_db_instance" "replica-db" {
+#   provider                = aws.replica
+#   availability_zone       = "us-west-1a"
+#   identifier              = "wordpressdev-replica"
+#   replicate_source_db     = aws_db_instance.primary-db.identifier
+#   engine                  = "postgres"
+#   engine_version          = "16"
+#   instance_class          = "db.m5.xlarge"
+#   storage_type            = "gp3"
+#   port                    = 5432
+#   backup_retention_period = 7
+#   storage_encrypted       = "true"
+#   skip_final_snapshot     = "true"
+#   apply_immediately       = "false"
+#   backup_window           = "03:00-04:00"
+#   maintenance_window      = "mon:04:00-mon:04:30"
+#   copy_tags_to_snapshot   = "true"
+#   deletion_protection     = "true"
+#   kms_key_id              = aws_kms_key.kms_key_us_east.arn
+#   monitoring_interval          = 60
+#   monitoring_role_arn          = aws_iam_role.rds_monitoring_role.arn
+#   performance_insights_enabled = "true"
+#   depends_on                   = [aws_db_instance.primary-db]
+#   tags = {
+#     Name        = "secondary-wordpressdev"
+#     Owner       = "Cloud Engineering"
+#     App         = "wordpress"
+#     Environment = "dev"
+#   }
+# }
 
 ################################################################################
 #  Cross-region replicas
@@ -111,8 +107,4 @@ resource "aws_db_instance_automated_backups_replication" "cross-region-replica" 
   kms_key_id             = aws_kms_key.kms_key_us_west.arn
   provider               = aws.replica
 }
-
-################################################################################
-# Install wordpress
-################################################################################
 
