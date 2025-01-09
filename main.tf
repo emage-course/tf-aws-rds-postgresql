@@ -24,7 +24,7 @@ resource "aws_db_instance" "primary-db" {
   port                    = 5432
   db_name                 = "postgres"
   username                = "postgres"
-  password                = "postgres123"
+  password                = "postgres"
   backup_retention_period = 7
   storage_encrypted       = true
   skip_final_snapshot     = true
