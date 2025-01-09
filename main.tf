@@ -6,6 +6,9 @@ resource "aws_kms_key" "kms_key_us_east" {
 
   tags = {
     Name = "kms_key_us_east"
+    Owner       = "Cloud Engineering"
+    App         = "wordpress"
+    Environment = "dev"
   }
 }
 
@@ -57,6 +60,9 @@ resource "aws_kms_key" "kms_key_us_west" {
 
   tags = {
     Name = "kms_key_us_west"
+    Owner       = "Cloud Engineering"
+    App         = "wordpress"
+    Environment = "dev"
   }
 
   provider = aws.replica
